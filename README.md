@@ -72,6 +72,7 @@ curl -X POST "http://localhost:8000/generate" \
 #### **Add SSH Key to Vast.ai**
 1. Go to your Vast.ai dashboard.
 2. Click the **Add/Remove SSH Keys** button (it looks like a key icon).
+   ![Alt text](images/find-ssh-key.png)
    ![Alt text](images/click-add-ssh.png)
 3. Paste your public key into the text box and click **Save**.
 
