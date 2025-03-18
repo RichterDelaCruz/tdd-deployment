@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+import os
 
 app = Flask(__name__)
 model_name = "richterdc/deepseek-coder-finetuned-tdd"  # Your Hugging Face model
@@ -10,11 +11,16 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     device_map="auto",  # Auto-use GPU
-    torch_dtype=torch.float16
+    torch_dtype=torch.float16  # Use FP16 for faster inference
 )
 
-@app.route("/generate", methods=["POST"])  # Changed from /predict to /generate
-def generate():  # Renamed function from predict to generate
+# Enable multi-GPU support
+if torch.cuda.device_count() > 1:
+    print(f"Using {torch.cuda.device_count()} GPUs!")
+    model = torch.nn.DataParallel(model)  # Wrap the model for multi-GPU
+
+@app.route("/generate", methods=["POST"])
+def generate():
     input_text = request.json["input_text"]
     inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
     outputs = model.generate(**inputs, max_new_tokens=200)

@@ -14,41 +14,151 @@ This repository contains a Flask API for generating test cases using a Hugging F
 ## **Setup**
 
 ### **1. Clone the Repository**
-Clone this repository to your workspace:
+Clone this repository:
 ```bash
 git clone https://github.com/RichterDelaCruz/tdd-deployment.git
 cd tdd-deployment
 ```
 
-### **2. Install Dependencies**
+---
+
+## **Running on Local Machine (CPU)**
+
+### **1. Install Dependencies**
 Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
 
-### **3. Run the Application**
-Start the Flask API with `torchrun` and `gunicorn`:
+### **2. Run the Application**
+Start the Flask API:
 ```bash
-torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
+python generate-test.py
 ```
 
----
-
-## **Usage**
-
-### **Send a Request**
-You can test the API using `curl`:
+### **3. Test the API**
+Send a request using `curl`:
 ```bash
 curl -X POST "http://localhost:8000/generate" \
   -H "Content-Type: application/json" \
   -d '{"input_text": "Write a Python function to add two numbers"}'
 ```
 
-### **Example Output**
+---
+
+## **Running on Local Machine but Connected to Remote GPU**
+
+### **1. Set Up Remote GPU Instance**
+- Use the following template on Vast.ai:
+  - **GPU:** NVIDIA A100 80GB
+  - **Disk Space:** At least 20GB (to accommodate the model and dependencies).
+  - **CUDA:** Ensure the instance supports CUDA for GPU acceleration.
+
+### **2. SSH into Your Remote Instance**
+Use the SSH command provided by Vast.ai:
+2.1. Go to your Vast.ai instance dashboard.
+2.2. Locate the **SSH Command** for your instance (it looks like a key icon).
+![Alt text](images/find-ssh-key.png)
+
+2.3. Click the **Add/Remove SSH Keys** button.
+![Alt text](images/click-add-ssh.png)
+
+2.4. Click the **Copy Proxy SSH Command** button.
+![Alt text](images/copy-proxy-ssh.png)
+
+### **3. Clone the Repository**
+Clone the repository on the remote instance:
+```bash
+git clone https://github.com/RichterDelaCruz/tdd-deployment.git
+cd tdd-deployment
+```
+
+### **4. Install Dependencies**
+Install the required Python packages:
+```bash
+pip install -r requirements.txt
+```
+
+### **5. Start the Flask API**
+Run the Flask API on the remote instance:
+```bash
+torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
+```
+
+### **6. Set Up SSH Port Forwarding**
+On your **local machine**, set up SSH port forwarding to connect to the remote GPU instance:
+```bash
+ssh -p <PORT> -L 8000:localhost:8000 root@<HOST>
+```
+
+### **7. Test the API from Your Local Machine**
+Send a request from your local machine:
+```bash
+curl -X POST "http://localhost:8000/generate" \
+  -H "Content-Type: application/json" \
+  -d '{"input_text": "Write a Python function to add two numbers"}'
+```
+
+---
+
+## **Running Only on Remote GPU**
+
+### **1. Set Up Remote GPU Instance**
+- Use the following template on Vast.ai:
+  - **GPU:** NVIDIA A100 80GB
+  - **Disk Space:** At least 20GB (to accommodate the model and dependencies).
+  - **CUDA:** Ensure the instance supports CUDA for GPU acceleration.
+
+### **2. SSH into Your Remote Instance**
+Use the SSH command provided by Vast.ai:
+```bash
+ssh -p <PORT> root@<HOST>
+```
+
+### **3. Clone the Repository**
+Clone the repository on the remote instance:
+```bash
+git clone https://github.com/RichterDelaCruz/tdd-deployment.git
+cd tdd-deployment
+```
+
+### **4. Install Dependencies**
+Install the required Python packages:
+```bash
+pip install -r requirements.txt
+```
+
+### **5. Start the Flask API**
+Run the Flask API on the remote instance:
+```bash
+torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
+```
+
+### **6. Test the API**
+Send a request from the remote instance:
+```bash
+curl -X POST "http://localhost:8000/generate" \
+  -H "Content-Type: application/json" \
+  -d '{"input_text": "Write a Python function to add two numbers"}'
+```
+
+---
+
+## **Testing**
+
+### **1. Example Input**
+Use the `prompt.json` file to test the API:
+```bash
+curl -X POST "http://localhost:8000/generate" \
+  -H "Content-Type: application/json" \
+  --data-binary @prompt.json
+```
+
+### **2. Example Output**
 The API will return a response like:
 ```json
 {
-  "result": "Here is a Python function to add two numbers:\n\n```python\ndef add_numbers(a, b):\n    return a + b\n```"
+  "result": "Test Case: Verify that the `hash_function` in `helpers.py` correctly hashes a password using SHA-256.\nReason: This ensures that passwords are securely hashed and cannot be easily reversed.\nInput: `password123`\nExpected Output: A SHA-256 hash of the input password, e.g., `ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f`."
 }
 ```
 
@@ -62,80 +172,28 @@ The API will return a response like:
 
 ---
 
-## **Deployment on Vast.ai**
-1. **SSH into Your Instance:**
-   ```bash
-   ssh -p <PORT> root@<HOST>
-   ```
-
-2. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/RichterDelaCruz/tdd-deployment.git
-   cd tdd-deployment
-   ```
-
-3. **Install Dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Run the App:**
-   ```bash
-   torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
-   ```
-
----
-
 ## **License**
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
----
-
-### **How to Use the Repository on Vast.ai**
-
-#### **1. SSH into Your Instance**
-Use the SSH command provided by Vast.ai to connect to your instance:
-```bash
-ssh -p <PORT> root@<HOST>
-```
-
-#### **2. Clone the Repository**
-Clone your GitHub repository:
-```bash
-git clone https://github.com/RichterDelaCruz/tdd-deployment.git
-cd tdd-deployment
-```
-
-#### **3. Install Dependencies**
-Install the required Python packages:
-```bash
-pip install -r requirements.txt
-```
-
-#### **4. Run the App**
-Start the Flask API with `torchrun` and `gunicorn`:
-```bash
-torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
 ```
 
 ---
 
-### **Testing the API**
-Once the server is running, you can test the API using `curl`:
-```bash
-curl -X POST "http://localhost:8000/generate" \
-  -H "Content-Type: application/json" \
-  -d '{"input_text": "Write a Python function to add two numbers"}'
-```
+### **Key Changes**
+1. **Three Scenarios:**
+   - **Local Machine (CPU):** No GPU, just local testing.
+   - **Local Machine + Remote GPU:** Local machine connects to a remote GPU instance via SSH port forwarding.
+   - **Remote GPU Only:** Everything runs on the remote GPU instance.
+
+2. **SSH Port Forwarding:**
+   - Added instructions for setting up SSH port forwarding to connect your local machine to the remote GPU instance.
+
+3. **Vast.ai Template:**
+   - Clearly specified the recommended GPU (NVIDIA A100 80GB) and disk space requirements.
 
 ---
 
-### **One-Liner for Quick Setup**
-If you want to automate everything from scratch (e.g., on a fresh Vast.ai instance), you can use a **one-liner** to:
-1. Clone the repository.
-2. Install dependencies.
-3. Run the app.
-
-#### **One-Liner Command**
+### **One-Liner for Quick Setup on Vast.ai**
+If you want to automate everything from scratch on a fresh Vast.ai instance, use this **one-liner**:
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/RichterDelaCruz/tdd-deployment/main/run_app.sh)
 ```
