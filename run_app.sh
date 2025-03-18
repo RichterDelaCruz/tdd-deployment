@@ -15,6 +15,16 @@ fi
 echo "Installing dependencies..."
 pip install -r requirements.txt
 
-# Step 3: Start the server
+# Step 3: Download the model (if not already present)
+echo "Downloading the model..."
+python -c "
+from transformers import AutoModelForCausalLM, AutoTokenizer
+model_name = 'richterdc/deepseek-coder-finetuned-tdd'
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', torch_dtype='auto')
+print('Model downloaded successfully!')
+"
+
+# Step 4: Start the server
 echo "Starting server with torchrun and gunicorn..."
 torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
