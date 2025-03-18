@@ -26,6 +26,5 @@ print('Model downloaded successfully!')
 "
 
 # Step 4: Start the server
-echo "Starting server with torchrun and gunicorn..."
-cd tdd-deployment
-torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
+echo "Starting server with torchrun and gunicorn..."s
+torchrun --nproc_per_node=1 $(which gunicorn) -w 1 -b 0.0.0.0:8000 generate-test:app
