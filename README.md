@@ -111,32 +111,26 @@ curl -X POST "http://localhost:8000/generate" \
   - **Disk Space:** At least 20GB (to accommodate the model and dependencies).
   - **CUDA:** Ensure the instance supports CUDA for GPU acceleration.
 
-### **2. SSH into Your Remote Instance**
-Use the SSH command provided by Vast.ai:
-```bash
-ssh -p <PORT> root@<HOST>
-```
-
-### **3. Clone the Repository**
+### **2. Clone the Repository**
 Clone the repository on the remote instance:
 ```bash
 git clone https://github.com/RichterDelaCruz/tdd-deployment.git
 cd tdd-deployment
 ```
 
-### **4. Install Dependencies**
+### **3. Install Dependencies**
 Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
 
-### **5. Start the Flask API**
+### **4. Start the Flask API**
 Run the Flask API on the remote instance:
 ```bash
 torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
 ```
 
-### **6. Test the API**
+### **5. Test the API**
 Send a request from the remote instance:
 ```bash
 curl -X POST "http://localhost:8000/generate" \
@@ -176,7 +170,6 @@ The API will return a response like:
 
 ## **License**
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
 
 ---
 
