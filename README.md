@@ -56,7 +56,9 @@ curl -X POST "http://localhost:8000/generate" \
 
 ### **2. SSH into Your Remote Instance**
 Use the SSH command provided by Vast.ai:
+
 2.1. Go to your Vast.ai instance dashboard.
+
 2.2. Locate the **SSH Command** for your instance (it looks like a key icon).
 ![Alt text](images/find-ssh-key.png)
 
