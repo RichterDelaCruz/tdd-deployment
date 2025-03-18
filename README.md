@@ -1,4 +1,4 @@
-# TDD Deployment
+# **TDD Deployment**
 
 This repository contains a Flask API for generating test cases using a Hugging Face model fine-tuned for Test-Driven Development (TDD). The API is designed to analyze code and suggest essential test cases.
 
@@ -46,7 +46,7 @@ curl -X POST "http://localhost:8000/generate" \
 
 ---
 
-## **Running on Local Machine but Connected to Remote GPU**
+## **Running on Remote GPU (Vast.ai)**
 
 ### **1. Set Up Remote GPU Instance**
 - Use the following template on Vast.ai:
@@ -54,46 +54,73 @@ curl -X POST "http://localhost:8000/generate" \
   - **Disk Space:** At least 20GB (to accommodate the model and dependencies).
   - **CUDA:** Ensure the instance supports CUDA for GPU acceleration.
 
-### **2. SSH into Your Remote Instance**
-Use the SSH command provided by Vast.ai:
+### **2. Generate and Add SSH Key**
 
-2.1. Go to your Vast.ai instance dashboard.
+#### **Generate a New SSH Key**
+1. Run the following command to generate a new SSH key:
+   ```bash
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   ```
+   - Press **Enter** to accept the default file location (`~/.ssh/id_ed25519`).
+   - Optionally, set a passphrase for added security (or leave it blank).
 
-2.2. Locate the **SSH Command** for your instance (it looks like a key icon).
-![Alt text](images/find-ssh-key.png)
+2. Copy the public key:
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
 
-2.3. Click the **Add/Remove SSH Keys** button.
-![Alt text](images/click-add-ssh.png)
+#### **Add SSH Key to Vast.ai**
+1. Go to your Vast.ai dashboard.
+2. Click the **Add/Remove SSH Keys** button (it looks like a key icon).
+   ![Alt text](images/click-add-ssh.png)
+3. Paste your public key into the text box and click **Save**.
 
-2.4. Click the **Copy Proxy SSH Command** button.
-![Alt text](images/copy-proxy-ssh.png)
+---
 
-### **3. Clone the Repository**
+### **3. Connect to Your Remote Instance**
+
+#### **Copy the Proxy SSH Command**
+1. In your Vast.ai dashboard, locate the **Proxy SSH Command**.
+2. Click the **Copy Proxy SSH Command** button.
+   ![Alt text](images/copy-proxy-ssh.png)
+
+#### **Run the SSH Command**
+Paste the copied command into your terminal. It will look something like this:
+```bash
+ssh -p 25855 -L 8000:localhost:8000 root@ssh5.vast.ai
+```
+- `-p 25855`: The custom port for your instance.
+- `-L 8000:localhost:8000`: Forwards port 8000 from the remote instance to your local machine.
+- `root@ssh5.vast.ai`: The username and hostname for your instance.
+
+---
+
+### **4. Set Up the Remote Instance**
+
+#### **Clone the Repository**
 Clone the repository on the remote instance:
 ```bash
 git clone https://github.com/RichterDelaCruz/tdd-deployment.git
 cd tdd-deployment
 ```
 
-### **4. Install Dependencies**
+#### **Install Dependencies**
 Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
 
-### **5. Start the Flask API**
+#### **Start the Flask API**
 Run the Flask API on the remote instance:
 ```bash
 torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
 ```
 
-### **6. Set Up SSH Port Forwarding**
-On your **local machine**, set up SSH port forwarding to connect to the remote GPU instance:
-```bash
-ssh -p <PORT> -L 8000:localhost:8000 root@<HOST>
-```
+---
 
-### **7. Test the API from Your Local Machine**
+### **5. Test the API**
+
+#### **From Your Local Machine**
 Send a request from your local machine:
 ```bash
 curl -X POST "http://localhost:8000/generate" \
@@ -101,37 +128,8 @@ curl -X POST "http://localhost:8000/generate" \
   -d '{"input_text": "Write a Python function to add two numbers"}'
 ```
 
----
-
-## **Running Only on Remote GPU**
-
-### **1. Set Up Remote GPU Instance**
-- Use the following template on Vast.ai:
-  - **GPU:** NVIDIA A100 80GB
-  - **Disk Space:** At least 20GB (to accommodate the model and dependencies).
-  - **CUDA:** Ensure the instance supports CUDA for GPU acceleration.
-
-### **2. Clone the Repository**
-Clone the repository on the remote instance:
-```bash
-git clone https://github.com/RichterDelaCruz/tdd-deployment.git
-cd tdd-deployment
-```
-
-### **3. Install Dependencies**
-Install the required Python packages:
-```bash
-pip install -r requirements.txt
-```
-
-### **4. Start the Flask API**
-Run the Flask API on the remote instance:
-```bash
-torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
-```
-
-### **5. Test the API**
-Send a request from the remote instance:
+#### **From the Remote Instance**
+Send a request directly from the remote instance:
 ```bash
 curl -X POST "http://localhost:8000/generate" \
   -H "Content-Type: application/json" \
@@ -173,22 +171,28 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-### **Key Changes**
-1. **Three Scenarios:**
-   - **Local Machine (CPU):** No GPU, just local testing.
-   - **Local Machine + Remote GPU:** Local machine connects to a remote GPU instance via SSH port forwarding.
-   - **Remote GPU Only:** Everything runs on the remote GPU instance.
-
-2. **SSH Port Forwarding:**
-   - Added instructions for setting up SSH port forwarding to connect your local machine to the remote GPU instance.
-
-3. **Vast.ai Template:**
-   - Clearly specified the recommended GPU (NVIDIA A100 80GB) and disk space requirements.
-
----
-
 ### **One-Liner for Quick Setup on Vast.ai**
 If you want to automate everything from scratch on a fresh Vast.ai instance, use this **one-liner**:
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/RichterDelaCruz/tdd-deployment/main/run_app.sh)
 ```
+
+---
+
+### **Troubleshooting**
+
+#### **Permission Denied (publickey)**
+- Ensure your public key was added to Vast.ai **exactly** as shown by `cat ~/.ssh/id_ed25519.pub`.
+- Verify you’re using the correct private key with the `-i` flag:
+  ```bash
+  ssh -p 25855 -i ~/.ssh/id_ed25519 root@ssh5.vast.ai
+  ```
+
+#### **Driver/Library Version Mismatch**
+If you see the error `Failed to initialize NVML: Driver/library version mismatch`, update your NVIDIA driver:
+```bash
+sudo apt update
+sudo apt install -y nvidia-driver-525  # Replace 525 with the required version
+sudo reboot
+```
+
