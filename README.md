@@ -88,8 +88,6 @@ The API will return a response like:
 
 ## **License**
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
-
 ---
 
 ### **How to Use the Repository on Vast.ai**
