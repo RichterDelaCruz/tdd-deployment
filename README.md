@@ -57,7 +57,7 @@ curl -X POST "http://localhost:8000/generate" \
 ### **2. Generate and Add SSH Key**
 
 #### **Generate a New SSH Key**
-1. Run the following command to generate a new SSH key:
+1. Run the following command in your local PC to generate a new SSH key:
    ```bash
    ssh-keygen -t ed25519 -C "your_email@example.com"
    ```
@@ -111,10 +111,27 @@ Install the required Python packages:
 pip install -r requirements.txt
 ```
 
+# Download the model (if not already present)
+```bash
+echo "Downloading the model..."
+python -c "
+from transformers import AutoModelForCausalLM, AutoTokenizer
+model_name = 'richterdc/deepseek-coder-finetuned-tdd'
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', torch_dtype='auto')
+print('Model downloaded successfully!')
+"
+```
+
 #### **Start the Flask API**
 Run the Flask API on the remote instance:
 ```bash
-torchrun --nproc_per_node=1 gunicorn -w 1 -b 0.0.0.0:8000 generate-test:app
+torchrun --nproc_per_node=1 $(which gunicorn) -w 1 -b 0.0.0.0:8000 generate-test:app
+```
+
+or if you're using 4 GPU 
+```bash
+torchrun --nproc_per_node=4 $(which gunicorn) -w 4 -b 0.0.0.0:8000 generate-test:app
 ```
 
 ---
