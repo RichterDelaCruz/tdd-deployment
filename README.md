@@ -126,14 +126,8 @@ print('Model downloaded successfully!')
 #### **Start the Flask API**
 Run the Flask API on the remote instance:
 ```bash
-torchrun --nproc_per_node=1 $(which gunicorn) -w 1 -b 0.0.0.0:8000 generate-test:app
+$(which gunicorn) -w 1 -b 0.0.0.0:8000 generate-test:app
 ```
-
-or if you're using 4 GPU 
-```bash
-torchrun --nproc_per_node=4 $(which gunicorn) -w 4 -b 0.0.0.0:8000 generate-test:app
-```
-
 ---
 
 ### **5. Test the API**
