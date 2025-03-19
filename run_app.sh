@@ -72,16 +72,6 @@ model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', torc
 print('Model downloaded successfully!')
 "
 
-# Step 6: Determine the number of GPUs available
-num_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
-echo "Detected $num_gpus GPU(s)."
-
-# Step 7: Start the server with torchrun and gunicorn
+# Step 6: Start the server
 echo "Starting server with torchrun and gunicorn..."
-if [ "$num_gpus" -eq 0 ]; then
-    echo "Error: No GPUs detected. Exiting..."
-    exit 1
-else
-    echo "Using $num_gpus GPUs..."
-    torchrun --nproc_per_node=$num_gpus $(which gunicorn) -w $num_gpus -b 0.0.0.0:8000 generate-test:app
-fi
+$(which gunicorn) -w 1 -b 0.0.0.0:8000 generate-test:app
