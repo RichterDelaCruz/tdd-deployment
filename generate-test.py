@@ -14,11 +14,6 @@ model = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.float16  # Use FP16 for faster inference
 )
 
-# Enable multi-GPU support
-if torch.cuda.device_count() > 1:
-    print(f"Using {torch.cuda.device_count()} GPUs!")
-    model = torch.nn.DataParallel(model)  # Wrap the model for multi-GPU
-
 @app.route("/generate", methods=["POST"])
 def generate():
     input_text = request.json["input_text"]
