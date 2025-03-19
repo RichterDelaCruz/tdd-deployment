@@ -81,9 +81,6 @@ echo "Starting server with torchrun and gunicorn..."
 if [ "$num_gpus" -eq 0 ]; then
     echo "Error: No GPUs detected. Exiting..."
     exit 1
-elif [ "$num_gpus" -eq 1 ]; then
-    echo "Using 1 GPU..."
-    torchrun --nproc_per_node=1 $(which gunicorn) -w 1 -b 0.0.0.0:8000 generate-test:app
 else
     echo "Using $num_gpus GPUs..."
     torchrun --nproc_per_node=$num_gpus $(which gunicorn) -w $num_gpus -b 0.0.0.0:8000 generate-test:app

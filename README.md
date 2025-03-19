@@ -50,7 +50,7 @@ curl -X POST "http://localhost:8000/generate" \
 
 ### **1. Set Up Remote GPU Instance**
 - Use the following template on Vast.ai:
-  - **GPU:** NVIDIA A100 80GB
+  - **GPU:** CAN BE RUN ON A SINGLE RTX 3090
   - **Disk Space:** At least 20GB (to accommodate the model and dependencies).
   - **CUDA:** Ensure the instance supports CUDA for GPU acceleration.
 
@@ -163,7 +163,7 @@ Use the `prompt.json` file to test the API:
 ```bash
 curl -X POST "http://localhost:8000/generate" \
   -H "Content-Type: application/json" \
-  --data-binary @prompt.json
+  --data-binary @./tdd-deployment/prompt.json
 ```
 
 ### **2. Example Output**
