@@ -126,7 +126,7 @@ print('Model downloaded successfully!')
 #### **Start the Flask API**
 Run the Flask API on the remote instance:
 ```bash
-$(which gunicorn) -w 1 -b 0.0.0.0:8000 generate-test:app
+$(which gunicorn) -w 1 -b 0.0.0.0:8000 tdd-deployment.generate-test:app
 ```
 ---
 
